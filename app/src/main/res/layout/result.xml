@@ -48,22 +48,28 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="上传"
-            android:id="@+id/upload"
-            android:onClick="doPost"
-            android:layout_alignParentTop="true"
-            android:layout_alignStart="@+id/uptofacepp"
-            android:layout_marginStart="40dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="返回"
             android:id="@+id/back1"
             android:onClick="back"
             android:layout_alignParentTop="true"
-            android:layout_toEndOf="@+id/upload"
-            android:layout_marginStart="55dp" />
+            android:layout_alignStart="@+id/rcText" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="上传"
+            android:id="@+id/upload"
+            android:onClick="doPost"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/rcPic" />
+
+        <Button
+            android:text="语音"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/voice"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/rcFace" />
 
 
     </RelativeLayout>
