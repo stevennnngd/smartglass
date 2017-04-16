@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.miser.ceamera2demo"
+        applicationId "com.steven.Smartglass"
         minSdkVersion 17
         targetSdkVersion 22
         versionCode 1

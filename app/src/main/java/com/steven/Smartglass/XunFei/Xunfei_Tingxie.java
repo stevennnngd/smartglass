@@ -42,7 +42,7 @@ public class Xunfei_Tingxie {
     }
 
     private void printResult(RecognizerResult results) {
-        String text = JsonParser.parseIatResult(results.getResultString());
+        String text = TingxieJsonDeco.parseIatResult(results.getResultString());
 
         String sn = null;
         // 读取json结果中的sn字段

@@ -26,14 +26,14 @@ import javax.net.ssl.SSLException;
  * Created by Administrator on 2017/4/14 0014.
  */
 
-public class Facepplusplus extends Thread {
+public class Faceplusplus extends Thread {
 
     private File file;
     private String url;
     private Handler facehandler;
     Gson gson = new Gson();
 
-    public Facepplusplus(File file, String url, Handler facehandler) {
+    public Faceplusplus(File file, String url, Handler facehandler) {
         this.file = file;
         this.url = url;
         this.facehandler = facehandler;
