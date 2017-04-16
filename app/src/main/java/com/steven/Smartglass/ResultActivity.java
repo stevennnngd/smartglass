@@ -1,6 +1,7 @@
 package com.steven.Smartglass;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +22,7 @@ import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.SynthesizerListener;
 import com.steven.Smartglass.FacePP.Facepplusplus;
 import com.steven.Smartglass.Upload.Upload;
+import com.steven.Smartglass.XunFei.Xunfei_Tingxie;
 
 import java.io.File;
 
@@ -35,7 +37,7 @@ public class ResultActivity extends Activity {
     private Button voice;
     private static Handler facehandler;
     private static Handler uploadhandler;
-    private String voicetext;
+    private Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,10 +76,8 @@ public class ResultActivity extends Activity {
             public void handleMessage(Message msg) {
                 if (msg != null) {
                     tv.setText("" + msg.obj);
-                    voicetext = msg.obj.toString();
-                    System.out.println(voicetext);
                     try {
-                        mTts.startSpeaking(voicetext, mSynListener);
+                        mTts.startSpeaking(msg.obj.toString(), mSynListener);
                     }catch (Exception e){
                         System.out.println("声音出错");
                     }
@@ -90,10 +90,8 @@ public class ResultActivity extends Activity {
             public void handleMessage(Message msg) {
                 if (msg != null) {
                     tv.setText("" + msg.obj);
-                    voicetext = msg.obj.toString();
-                    System.out.println(voicetext);
                     try {
-                        mTts.startSpeaking(voicetext, mSynListener);
+                        mTts.startSpeaking(msg.obj.toString(), mSynListener);
                     }catch (Exception e){
                         System.out.println("声音出错");
                     }
@@ -178,14 +176,11 @@ public class ResultActivity extends Activity {
         voice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    mTts.startSpeaking("hello world", mSynListener);
-                }catch (Exception e){
-                    System.out.println("声音出错");
-                }
+                new Xunfei_Tingxie(context, tv);
             }
         });
     }
+
 
 
     //合成监听器
