@@ -16,10 +16,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iflytek.cloud.SpeechConstant;
-import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechSynthesizer;
 import com.iflytek.cloud.SpeechUtility;
-import com.iflytek.cloud.SynthesizerListener;
+import com.steven.Smartglass.Baidutranslate.TransApi;
 import com.steven.Smartglass.FacePP.Faceplusplus;
 import com.steven.Smartglass.Upload.Upload;
 import com.steven.Smartglass.XunFei.Xunfei_Tingxie;
@@ -52,8 +51,8 @@ public class ResultActivity extends Activity {
         tv.setMovementMethod(ScrollingMovementMethod.getInstance());
         //初始化讯飞语音
         SpeechUtility.createUtility(this, SpeechConstant.APPID + "=58f0e555");
-        final  SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);;
-
+        final SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);
+        ;
         back = (Button) findViewById(R.id.back1);
         back.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -72,7 +71,7 @@ public class ResultActivity extends Activity {
             public void handleMessage(Message msg) {
                 if (msg != null) {
                     String TTSmsg = msg.obj.toString();
-                    tv.setText("" + msg.obj);
+                    tv.setText("" + TTSmsg);
                     try {
                         new Xunfei_TTS(context, mTts, TTSmsg);
                     } catch (Exception e) {
@@ -87,7 +86,7 @@ public class ResultActivity extends Activity {
             public void handleMessage(Message msg) {
                 if (msg != null) {
                     String TTSmsg = msg.obj.toString();
-                    tv.setText("" + msg.obj);
+                    tv.setText("" + TTSmsg);
                     try {
                         new Xunfei_TTS(context, mTts, TTSmsg);
                     } catch (Exception e) {

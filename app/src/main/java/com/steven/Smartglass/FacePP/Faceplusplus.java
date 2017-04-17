@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.google.gson.Gson;
+import com.steven.Smartglass.Baidutranslate.TransApi;
+import com.steven.Smartglass.Baidutranslate.TransJsonDeco;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -30,6 +32,9 @@ public class Faceplusplus extends Thread {
 
     private File file;
     private String url;
+    private String TrScen;
+    private String TrObj;
+    private TransApi transApi = new TransApi();
     private Handler facehandler;
     Gson gson = new Gson();
 
@@ -48,7 +53,7 @@ public class Faceplusplus extends Thread {
         HashMap<String, byte[]> byteMap = new HashMap<>();
         map.put("api_key", "hylmMeoibMoMKo5H-FrMit571QL2e0yQ");
         map.put("api_secret", "rWXV8-Dkf-4LTChwyhStdRjhiD-iSZNy");
-        map.put("return_attributes", "gender,age,ethnicity,smiling,glass,headpose,blur");
+        map.put("return_attributes", "gender,age,ethnicity,smiling,glass,blur");
         byteMap.put("image_file", buff);
 
         try {
@@ -63,18 +68,24 @@ public class Faceplusplus extends Thread {
                 PicjsonDeco picjsonDeco = gson.fromJson(str, PicjsonDeco.class);
                 if ((picjsonDeco.getScenes().size()) > 0) {
                     scenesvalue = picjsonDeco.getScenes().get(0).getValue();
+                    TrScen = transApi.getTransResult(scenesvalue, "en", "zh");
+                    TransJsonDeco transJsonDeco = gson.fromJson(TrScen, TransJsonDeco.class);
+                    TrScen = transJsonDeco.getTrans_result().get(0).getDst();
                 }
                 if ((picjsonDeco.getObjects().size()) > 0) {
                     objectsvalue = picjsonDeco.getObjects().get(0).getValue();
+                    TrObj = transApi.getTransResult(objectsvalue, "en", "zh");
+                    TransJsonDeco transJsonDeco = gson.fromJson(TrObj, TransJsonDeco.class);
+                    TrObj = transJsonDeco.getTrans_result().get(0).getDst();
                 }
                 if (scenesvalue == null && objectsvalue == null) {
                     finalstr = "无法识别，请重新拍摄";
                 } else if (scenesvalue != null && objectsvalue != null) {
-                    finalstr = "场景：" + scenesvalue + "\n" + "物体：" + objectsvalue;
+                    finalstr = "场景：" + TrScen + "\n" + "物体：" + TrObj;
                 } else if (scenesvalue == null && objectsvalue != null) {
-                    finalstr = "当前物体是：" + objectsvalue;
+                    finalstr = "当前物体是：" + TrObj;
                 } else {
-                    finalstr = "当前场景是：" + scenesvalue;
+                    finalstr = "当前场景是：" + TrScen;
                 }
             }
 
@@ -90,7 +101,6 @@ public class Faceplusplus extends Thread {
                     System.out.println("type:" + type);
                     if (type.equals("textline")) {
                         text = text + textjson.getResult().get(i).getValue() + "\n";
-                        System.out.println("text:" + text);
                     }
                 }
                 finalstr = text;
@@ -101,34 +111,50 @@ public class Faceplusplus extends Thread {
                 String gendervalue = null;
                 int agevalue;
                 double smile;
+                String smiledf = null;
                 String ethnicityvalue = null;
                 String glass = null;
-                double headpose_pitch_angle;
-                double headpose_roll_angle;
-                double headpose_yaw_angle;
                 double blur;
-                DecimalFormat df = new DecimalFormat(".##");
+                String blurdf = null;
+                //DecimalFormat df = new DecimalFormat(".##");
                 try {
                     FacejsonDeco facejsonDeco = gson.fromJson(str, FacejsonDeco.class);
                     if (facejsonDeco.getFaces().size() > 0) {
                         gendervalue = facejsonDeco.getFaces().get(0).getAttributes().getGender().getValue();
+                        if (gendervalue.equals("Male")) {
+                            gendervalue = "男性";
+                        } else
+                            gendervalue = "女性";
                         agevalue = facejsonDeco.getFaces().get(0).getAttributes().getAge().getValue();
                         ethnicityvalue = facejsonDeco.getFaces().get(0).getAttributes().getEthnicity().getValue();
+                        if (ethnicityvalue.equals("Asian")) {
+                            ethnicityvalue = "亚洲人";
+                        } else if (ethnicityvalue.equals("White")) {
+                            ethnicityvalue = "白人";
+                        } else
+                            ethnicityvalue = "黑人";
                         smile = facejsonDeco.getFaces().get(0).getAttributes().getSmile().getValue();
+                        if (smile < 0) {
+                            smiledf = "0" + smile;
+                        } else
+                            smiledf = "" + smile;
                         glass = facejsonDeco.getFaces().get(0).getAttributes().getGlass().getValue();
-                        headpose_pitch_angle = facejsonDeco.getFaces().get(0).getAttributes().getHeadpose().getPitch_angle();
-                        headpose_roll_angle = facejsonDeco.getFaces().get(0).getAttributes().getHeadpose().getRoll_angle();
-                        headpose_yaw_angle = facejsonDeco.getFaces().get(0).getAttributes().getHeadpose().getYaw_angle();
-                        String pitch_angle = df.format(headpose_pitch_angle);
-                        String roll_angle = df.format(headpose_roll_angle);
-                        String yaw_angle = df.format(headpose_yaw_angle);
+                        if (glass.equals("None")) {
+                            glass = "无";
+                        } else if (glass.equals("Dark")) {
+                            glass = "黑框眼镜或墨镜";
+                        } else
+                            glass = "普通眼镜";
                         blur = facejsonDeco.getFaces().get(0).getAttributes().getBlur().getBlurness().getValue();
+                        if (blur < 0) {
+                            blurdf = "0" + blur;
+                        } else
+                            blurdf = "" + blur;
+                        //blurdf = df.format(blur);
 
                         finalstr = "性别：" + gendervalue + "\n" + "年龄：" + agevalue + "\n"
-                                + "人种：" + ethnicityvalue + "\n" + "微笑值：" + smile + "  (满分100)" + "\n"
-                                + "佩戴眼镜：" + glass + "\n" + "抬头角度：" + pitch_angle + "°" + "\n"
-                                + "旋转角度：" + roll_angle + "°" + "\n" + "摇头角度：" + yaw_angle + "°" + "\n"
-                                + "人脸模糊度：" + blur;
+                                + "人种：" + ethnicityvalue + "\n" + "微笑值：" + smiledf + "  (满分100)" + "\n"
+                                + "佩戴眼镜：" + glass + "\n" + "人脸模糊度：" + blurdf;
                     } else
                         finalstr = "无法识别，请重新拍摄";
                 } catch (Exception e) {
