@@ -18,7 +18,6 @@ import android.widget.TextView;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechSynthesizer;
 import com.iflytek.cloud.SpeechUtility;
-import com.steven.Smartglass.Baidutranslate.TransApi;
 import com.steven.Smartglass.FacePP.Faceplusplus;
 import com.steven.Smartglass.Upload.Upload;
 import com.steven.Smartglass.XunFei.Xunfei_Tingxie;
