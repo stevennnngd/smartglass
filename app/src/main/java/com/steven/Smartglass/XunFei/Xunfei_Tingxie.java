@@ -1,7 +1,10 @@
 package com.steven.Smartglass.XunFei;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Message;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,32 +14,29 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import android.os.Handler;
 
 
-public class Xunfei_Tingxie {
+public class Xunfei_Tingxie extends Thread {
 
     private Context context;
-    private TextView tv;
+    private Handler handler;
     private HashMap<String, String> mIatResults = new LinkedHashMap<String, String>();
 
-    public Xunfei_Tingxie(final Context context, final TextView tv) {
+    public Xunfei_Tingxie(final Context context,Handler handler) {
         this.context = context;
-        this.tv = tv;
+        this.handler = handler;
 
-        SpeechRecognizer mIat = SpeechRecognizer.createRecognizer(context, null);
+        final SpeechRecognizer mIat = SpeechRecognizer.createRecognizer(context, null);
         mIat.setParameter(SpeechConstant.DOMAIN, "iat");
         mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
         mIat.setParameter(SpeechConstant.ACCENT, "mandarin ");
-        mIat.setParameter(SpeechConstant.VAD_BOS, "4000");
-        mIat.setParameter(SpeechConstant.VAD_EOS, "1000");
-        mIat.setParameter(SpeechConstant.ASR_PTT, "1");
-
-        //开始听写
         mIat.startListening(mRecoListener);
 
     }
@@ -59,7 +59,9 @@ public class Xunfei_Tingxie {
         for (String key : mIatResults.keySet()) {
             resultBuffer.append(mIatResults.get(key));
         }
-        tv.setText(resultBuffer.toString());
+        Message msg = handler.obtainMessage();
+        msg.obj = resultBuffer.toString();
+        handler.sendMessage(msg);
     }
 
     //听写监听器
@@ -86,6 +88,7 @@ public class Xunfei_Tingxie {
         //结束录音
         public void onEndOfSpeech() {
             Toast.makeText(context, "说话结束", Toast.LENGTH_SHORT).show();
+
         }
 
         //扩展用接口

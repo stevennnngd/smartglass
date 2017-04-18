@@ -10,10 +10,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechSynthesizer;
@@ -23,7 +25,10 @@ import com.steven.Smartglass.Upload.Upload;
 import com.steven.Smartglass.XunFei.Xunfei_Tingxie;
 import com.steven.Smartglass.XunFei.Xunfei_TTS;
 
+
 import java.io.File;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 
 public class ResultActivity extends Activity {
@@ -34,8 +39,10 @@ public class ResultActivity extends Activity {
     private Button rcText;
     private Button rcFace;
     private Button voice;
+    private TextView tv;
     private static Handler facehandler;
     private static Handler uploadhandler;
+    private static Handler voicehandler;
     private Context context = this;
 
     @Override
@@ -46,12 +53,12 @@ public class ResultActivity extends Activity {
         ImageView imageView = (ImageView) findViewById(R.id.pic);
         Bitmap bitmap = BitmapFactory.decodeFile(path);
         imageView.setImageBitmap(bitmap);
-        final TextView tv = (TextView) findViewById(R.id.textView);
+        tv = (TextView) findViewById(R.id.textView);
         tv.setMovementMethod(ScrollingMovementMethod.getInstance());
         //初始化讯飞语音
         SpeechUtility.createUtility(this, SpeechConstant.APPID + "=58f0e555");
         final SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);
-        ;
+
         back = (Button) findViewById(R.id.back1);
         back.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -95,39 +102,37 @@ public class ResultActivity extends Activity {
             }
         };
 
+        voicehandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg != null) {
+                    String TTSmsg = msg.obj.toString();
+                    tv.setText("" + TTSmsg);
+                    if (TTSmsg.equals("打开相机")) {
+                        Intent intent = new Intent(ResultActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        ResultActivity.this.finish();
+                    } else
+                        new voice_contorl(TTSmsg);
+                }
+            }
+        };
+
         upload = (Button) findViewById(R.id.upload);
         upload.setOnClickListener(new View.OnClickListener() {
                                       @Override
                                       public void onClick(View v) {
-                                          File file = new File(Environment.getExternalStorageDirectory(), "temp.jpeg");
-                                          if (!file.exists()) {
-                                              System.out.println("pic not exist:" + file.getAbsolutePath());
-                                              return;
-                                          } else
-                                              System.out.println("pic dir is:" + file.getAbsolutePath());
-                                          String remind = "    正在上传，请稍等...";
-                                          tv.setText(remind);
-                                          Upload uploadthread = new Upload(file, uploadhandler);
-                                          uploadthread.start();
+                                          upload();
                                       }
                                   }
         );
+
 
         rcPic = (Button) findViewById(R.id.rcPic);
         rcPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File file = new File(Environment.getExternalStorageDirectory(), "temp.jpeg");
-                if (!file.exists()) {
-                    System.out.println("rcPic pic not exist:" + file.getAbsolutePath());
-                    return;
-                } else
-                    System.out.println("rcPic pic dir is:" + file.getAbsolutePath());
-                String url = "https://api-cn.faceplusplus.com/imagepp/beta/detectsceneandobject";
-                String remind = "    正在识别，请稍等...";
-                tv.setText(remind);
-                Faceplusplus rcPicthread = new Faceplusplus(file, url, facehandler);
-                rcPicthread.start();
+                faceplusplus("https://api-cn.faceplusplus.com/imagepp/beta/detectsceneandobject");
             }
         });
 
@@ -136,17 +141,7 @@ public class ResultActivity extends Activity {
         rcText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File file = new File(Environment.getExternalStorageDirectory(), "temp.jpeg");
-                if (!file.exists()) {
-                    System.out.println("rcText pic not exist:" + file.getAbsolutePath());
-                    return;
-                } else
-                    System.out.println("rcText pic dir is:" + file.getAbsolutePath());
-                String url = "https://api-cn.faceplusplus.com/imagepp/beta/recognizetext";
-                String remind = "    正在识别，请稍等...";
-                tv.setText(remind);
-                Faceplusplus rcTextthread = new Faceplusplus(file, url, facehandler);
-                rcTextthread.start();
+                faceplusplus("https://api-cn.faceplusplus.com/imagepp/beta/recognizetext");
             }
         });
 
@@ -154,27 +149,47 @@ public class ResultActivity extends Activity {
         rcFace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File file = new File(Environment.getExternalStorageDirectory(), "temp.jpeg");
-                if (!file.exists()) {
-                    System.out.println("rcFace pic not exist:" + file.getAbsolutePath());
-                    return;
-                } else
-                    System.out.println("rcFace pic dir is:" + file.getAbsolutePath());
-                String url = "https://api-cn.faceplusplus.com/facepp/v3/detect";
-                String remind = "    正在识别，请稍等...";
-                tv.setText(remind);
-                Faceplusplus rcFacethread = new Faceplusplus(file, url, facehandler);
-                rcFacethread.start();
+                faceplusplus("https://api-cn.faceplusplus.com/facepp/v3/detect");
             }
         });
+
 
         voice = (Button) findViewById(R.id.voice);
         voice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Xunfei_Tingxie(context, tv);
+                Xunfei_Tingxie voicethread = new Xunfei_Tingxie(context, voicehandler);
+                voicethread.start();
             }
         });
+
+    }
+
+    public void faceplusplus(String url) {
+        File file = new File(Environment.getExternalStorageDirectory(), "temp.jpeg");
+        if (!file.exists()) {
+            System.out.println("rcPic pic not exist:" + file.getAbsolutePath());
+            return;
+        } else
+            System.out.println("rcPic pic dir is:" + file.getAbsolutePath());
+        Faceplusplus rcPicthread = new Faceplusplus(file, url, facehandler);
+        rcPicthread.start();
+    }
+
+
+    public void upload() {
+        File file = new File(Environment.getExternalStorageDirectory(), "temp.jpeg");
+        if (!file.exists()) {
+            System.out.println("pic not exist:" + file.getAbsolutePath());
+            return;
+        } else
+            System.out.println("pic dir is:" + file.getAbsolutePath());
+        Upload uploadthread = new Upload(file, uploadhandler);
+        uploadthread.start();
     }
 
 }
+
+
+
+

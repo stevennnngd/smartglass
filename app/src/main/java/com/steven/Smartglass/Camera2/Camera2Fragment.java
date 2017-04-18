@@ -50,12 +50,13 @@ public class Camera2Fragment extends Fragment {
     TextureView mTextureView;
     Button mButton;
     Handler mHandler;
-    Handler mUIHandler;
     ImageReader mImageReader;
     CaptureRequest.Builder mPreViewBuidler;
     CameraCaptureSession mCameraSession;
     CameraCharacteristics mCameraCharacteristics;
-    Ringtone ringtone;
+
+
+
     //相机会话的监听器，通过他得到mCameraSession对象，这个对象可以用来发送预览和拍照请求
     private CameraCaptureSession.StateCallback mSessionStateCallBack = new CameraCaptureSession.StateCallback() {
         @Override
