@@ -88,7 +88,6 @@ public class Xunfei_Tingxie extends Thread {
         //结束录音
         public void onEndOfSpeech() {
             Toast.makeText(context, "说话结束", Toast.LENGTH_SHORT).show();
-
         }
 
         //扩展用接口

@@ -25,19 +25,12 @@ import com.steven.Smartglass.Upload.Upload;
 import com.steven.Smartglass.XunFei.Xunfei_Tingxie;
 import com.steven.Smartglass.XunFei.Xunfei_TTS;
 
-
 import java.io.File;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 
 public class ResultActivity extends Activity {
 
-    private Button upload;
     private Button back;
-    private Button rcPic;
-    private Button rcText;
-    private Button rcFace;
     private Button voice;
     private TextView tv;
     private static Handler facehandler;
@@ -49,7 +42,9 @@ public class ResultActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.result);
-        String path = getIntent().getStringExtra("picpath");
+        File tempFile = new File("/sdcard/temp.jpeg");
+        String path = tempFile.getAbsolutePath();
+                //getIntent().getStringExtra("picpath");
         ImageView imageView = (ImageView) findViewById(R.id.pic);
         Bitmap bitmap = BitmapFactory.decodeFile(path);
         imageView.setImageBitmap(bitmap);
@@ -112,46 +107,13 @@ public class ResultActivity extends Activity {
                         Intent intent = new Intent(ResultActivity.this, MainActivity.class);
                         startActivity(intent);
                         ResultActivity.this.finish();
+                        mTts.stopSpeaking();
+                        mTts.destroy();
                     } else
-                        new voice_contorl(TTSmsg);
+                        new voice_contorl(TTSmsg, context);
                 }
             }
         };
-
-        upload = (Button) findViewById(R.id.upload);
-        upload.setOnClickListener(new View.OnClickListener() {
-                                      @Override
-                                      public void onClick(View v) {
-                                          upload();
-                                      }
-                                  }
-        );
-
-
-        rcPic = (Button) findViewById(R.id.rcPic);
-        rcPic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                faceplusplus("https://api-cn.faceplusplus.com/imagepp/beta/detectsceneandobject");
-            }
-        });
-
-
-        rcText = (Button) findViewById(R.id.rcText);
-        rcText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                faceplusplus("https://api-cn.faceplusplus.com/imagepp/beta/recognizetext");
-            }
-        });
-
-        rcFace = (Button) findViewById(R.id.rcFace);
-        rcFace.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                faceplusplus("https://api-cn.faceplusplus.com/facepp/v3/detect");
-            }
-        });
 
 
         voice = (Button) findViewById(R.id.voice);
@@ -163,6 +125,7 @@ public class ResultActivity extends Activity {
             }
         });
 
+
     }
 
     public void faceplusplus(String url) {
@@ -172,10 +135,9 @@ public class ResultActivity extends Activity {
             return;
         } else
             System.out.println("rcPic pic dir is:" + file.getAbsolutePath());
-        Faceplusplus rcPicthread = new Faceplusplus(file, url, facehandler);
-        rcPicthread.start();
+        Faceplusplus faceplusplus = new Faceplusplus(file, url, facehandler);
+        faceplusplus.start();
     }
-
 
     public void upload() {
         File file = new File(Environment.getExternalStorageDirectory(), "temp.jpeg");
@@ -187,6 +149,7 @@ public class ResultActivity extends Activity {
         Upload uploadthread = new Upload(file, uploadhandler);
         uploadthread.start();
     }
+
 
 }
 
