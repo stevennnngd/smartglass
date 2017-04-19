@@ -12,12 +12,12 @@ import com.steven.Smartglass.XunFei.Xunfei_TTS;
  * Created by Administrator on 2017/4/18 0018.
  */
 
-public class voice_contorl {
+public class VoiceContorl {
 
     String TTSmsg;
     Context context;
 
-    public voice_contorl(String TTSmsg, Context context) {
+    public VoiceContorl(String TTSmsg, Context context) {
         this.TTSmsg = TTSmsg;
         this.context = context;
 

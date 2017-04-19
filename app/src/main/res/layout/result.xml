@@ -11,32 +11,14 @@
         android:layout_height="281dp"
         android:scaleType="fitCenter" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/back1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+    <Button
+        android:id="@+id/voice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="语音" />
 
-            android:layout_alignParentTop="true"
-            android:layout_marginEnd="60dp"
-            android:layout_toStartOf="@+id/voice"
-            android:onClick="back"
-            android:text="返回" />
-
-        <Button
-            android:id="@+id/voice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginEnd="70dp"
-            android:text="语音" />
-
-    </RelativeLayout>
 
     <TextView
         android:id="@+id/textView"

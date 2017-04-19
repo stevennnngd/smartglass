@@ -15,9 +15,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechSynthesizer;
 import com.iflytek.cloud.SpeechUtility;
 import com.steven.Smartglass.FacePP.Faceplusplus;
@@ -37,7 +37,6 @@ import static android.content.ContentValues.TAG;
 
 public class ResultActivity extends Activity {
 
-    private Button back;
     private Button voice;
     private TextView tv;
     private TextView turingtv;
@@ -63,23 +62,11 @@ public class ResultActivity extends Activity {
         tv.setMovementMethod(ScrollingMovementMethod.getInstance());
         turingtv = (TextView) findViewById(R.id.turing);
         turingtv.setMovementMethod(ScrollingMovementMethod.getInstance());
-        //final TuringManager mTuringManager = new TuringManager(context, TURING_APIKEY, TURING_SECRET);
         //初始化讯飞语音
         SpeechUtility.createUtility(this, SpeechConstant.APPID + "=58f0e555");
         final SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);
+        final SpeechRecognizer mIat = SpeechRecognizer.createRecognizer(context, null);
 
-        back = (Button) findViewById(R.id.back1);
-        back.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Intent intent = new Intent(ResultActivity.this, MainActivity.class);
-                                        startActivity(intent);
-                                        ResultActivity.this.finish();
-                                        mTts.stopSpeaking();
-                                        mTts.destroy();
-                                    }
-                                }
-        );
 
         uploadhandler = new Handler() {
             @Override
@@ -124,8 +111,10 @@ public class ResultActivity extends Activity {
                         ResultActivity.this.finish();
                         mTts.stopSpeaking();
                         mTts.destroy();
+                        mIat.stopListening();
+                        mIat.destroy();
                     } else {
-                        new voice_contorl(TTSmsg, context);
+                        new VoiceContorl(TTSmsg, context);
                     }
 
                 }
@@ -202,10 +191,9 @@ public class ResultActivity extends Activity {
                     JSONObject result_obj = new JSONObject(result);
                     if (result_obj.has("text")) {
                         Log.d(TAG, result_obj.get("text").toString());
-                        Message tempMsg = turinghandler.obtainMessage();
-                        tempMsg.obj = result_obj.get("text").toString();
-                        turinghandler.sendMessage(tempMsg);
+                        turinghandler.obtainMessage(0, result_obj.get("text").toString()).sendToTarget();
                     }
+
                 } catch (JSONException e) {
                     Log.d(TAG, "JSONException:" + e.getMessage());
                 }
