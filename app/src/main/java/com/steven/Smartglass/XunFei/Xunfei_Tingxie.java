@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+
 import android.os.Handler;
 
 
@@ -29,7 +30,7 @@ public class Xunfei_Tingxie extends Thread {
     private Handler handler;
     private HashMap<String, String> mIatResults = new LinkedHashMap<String, String>();
 
-    public Xunfei_Tingxie(final Context context,Handler handler) {
+    public Xunfei_Tingxie(final Context context, Handler handler) {
         this.context = context;
         this.handler = handler;
 
@@ -37,11 +38,14 @@ public class Xunfei_Tingxie extends Thread {
         mIat.setParameter(SpeechConstant.DOMAIN, "iat");
         mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
         mIat.setParameter(SpeechConstant.ACCENT, "mandarin ");
+        mIat.setParameter(SpeechConstant.ASR_PTT, "0");
+        mIat.setParameter(SpeechConstant.VAD_EOS, "2000");
         mIat.startListening(mRecoListener);
-
     }
 
-    private void printResult(RecognizerResult results) {
+    public void printResult(RecognizerResult results) {
+
+        SpeechRecognizer mIat = SpeechRecognizer.createRecognizer(context, null);
         String text = TingxieJsonDeco.parseIatResult(results.getResultString());
 
         String sn = null;
@@ -59,13 +63,20 @@ public class Xunfei_Tingxie extends Thread {
         for (String key : mIatResults.keySet()) {
             resultBuffer.append(mIatResults.get(key));
         }
-        Message msg = handler.obtainMessage();
-        msg.obj = resultBuffer.toString();
-        handler.sendMessage(msg);
+        if (sn.equals("1")) {
+            Message msg = handler.obtainMessage();
+            msg.obj = resultBuffer.toString();
+            handler.sendMessage(msg);
+        }else {
+            mIat.stopListening();
+            mIat.destroy();
+        }
+
     }
 
+
     //听写监听器
-    final private RecognizerListener mRecoListener = new RecognizerListener() {
+    final public RecognizerListener mRecoListener = new RecognizerListener() {
         public void onResult(RecognizerResult results, boolean isLast) {
             printResult(results);
         }
@@ -87,7 +98,8 @@ public class Xunfei_Tingxie extends Thread {
 
         //结束录音
         public void onEndOfSpeech() {
-            Toast.makeText(context, "说话结束", Toast.LENGTH_SHORT).show();
+
+            //Toast.makeText(context, "说话结束", Toast.LENGTH_SHORT).show();
         }
 
         //扩展用接口

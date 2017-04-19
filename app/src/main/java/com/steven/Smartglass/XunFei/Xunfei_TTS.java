@@ -64,6 +64,10 @@ public class Xunfei_TTS {
         //播放进度回调
         //percent为播放进度0~100,beginPos为播放音频在文本中开始位置，endPos表示播放音频在文本中结束位置.
         public void onSpeakProgress(int percent, int beginPos, int endPos) {
+            if (percent == 100) {
+                mTts.stopSpeaking();
+                mTts.destroy();
+            }
         }
 
         //恢复播放回调接口

@@ -56,7 +56,6 @@ public class Camera2Fragment extends Fragment {
     CameraCharacteristics mCameraCharacteristics;
 
 
-
     //相机会话的监听器，通过他得到mCameraSession对象，这个对象可以用来发送预览和拍照请求
     private CameraCaptureSession.StateCallback mSessionStateCallBack = new CameraCaptureSession.StateCallback() {
         @Override
@@ -179,8 +178,29 @@ public class Camera2Fragment extends Fragment {
         mTextureView.setSurfaceTextureListener(mSurfacetextlistener);
         //设置点击拍照的监听
         mButton.setOnClickListener(picOnClickListener);
+        //MakePic();
         return v;
     }
+
+    /*public void MakePic() {
+        try {
+            Log.d(TAG, "正在拍照");
+            CaptureRequest.Builder builder = mCameraSession.getDevice().createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            builder.addTarget(mImageReader.getSurface());
+            builder.set(CaptureRequest.CONTROL_AF_MODE,
+                    CaptureRequest.CONTROL_AF_MODE_AUTO);
+            builder.set(CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_START);
+            builder.set(CaptureRequest.CONTROL_AF_MODE,
+                    CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            builder.set(CaptureRequest.CONTROL_AE_MODE,
+                    CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+            builder.set(CaptureRequest.JPEG_ORIENTATION, 90);
+            mCameraSession.capture(builder.build(), null, mHandler);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }*/
 
     @Override
     public void onDestroyView() {
@@ -223,7 +243,7 @@ public class Camera2Fragment extends Fragment {
                 if (null != output) {
                     try {
                         output.close();
-                        Log.d(TAG, "保存成功："+tempFile.getAbsolutePath());
+                        Log.d(TAG, "保存成功：" + tempFile.getAbsolutePath());
                         Intent intent = new Intent(getActivity(), ResultActivity.class);
                         //intent.putExtra("picpath", tempFile.getAbsolutePath());
                         startActivity(intent);
