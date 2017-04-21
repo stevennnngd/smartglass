@@ -5,11 +5,15 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.Button;
 
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechRecognizer;
+import com.iflytek.cloud.SpeechSynthesizer;
+import com.iflytek.cloud.SpeechUtility;
+
 import static android.R.attr.delay;
 
 public class MainActivity extends Activity {
 
-    private Button mButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

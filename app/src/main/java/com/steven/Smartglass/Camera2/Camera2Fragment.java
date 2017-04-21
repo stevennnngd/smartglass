@@ -228,7 +228,9 @@ public class Camera2Fragment extends Fragment {
                         Log.d(TAG, "保存成功：" + tempFile.getAbsolutePath());
                         Intent intent = new Intent(getActivity(), ResultActivity.class);
                         //intent.putExtra("picpath", tempFile.getAbsolutePath());
+
                         startActivity(intent);
+
                         getActivity().finish();
                     } catch (IOException e) {
                         e.printStackTrace();

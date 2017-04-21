@@ -14,6 +14,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
+import static com.steven.Smartglass.ResultActivity.FaceppMSGwhat;
+import static com.steven.Smartglass.ResultActivity.UploadMSGwhat;
+
 
 public class Upload extends Thread {
 
@@ -21,12 +24,12 @@ public class Upload extends Thread {
     private static final int TIME_OUT = 100000; // 超时时间
     private static final String CHARSET = "utf-8"; // 设置编码
     private File file;
-    private Handler uploadhandler;
+    private Handler handler;
 
 
-    public Upload(File file, Handler uploadhandler) {
+    public Upload(File file, Handler handler) {
         this.file = file;
-        this.uploadhandler = uploadhandler;
+        this.handler = handler;
     }
 
     @Override
@@ -77,7 +80,7 @@ public class Upload extends Thread {
 
                 //res  获取服务器响应代码，200代表成功
                 int res;
-                Message msg = uploadhandler.obtainMessage();
+                //Message msg = uploadhandler.obtainMessage();
                 String resstr = "";
                 try {
                     res = conn.getResponseCode();
@@ -91,8 +94,9 @@ public class Upload extends Thread {
                 } catch (Exception e) {
                     resstr = "上传失败，服务器内部错误";
                 }
-                msg.obj = resstr;
-                uploadhandler.sendMessage(msg);
+                //msg.obj = resstr;
+                //uploadhandler.sendMessage(msg);
+                handler.obtainMessage(UploadMSGwhat, resstr).sendToTarget();
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();

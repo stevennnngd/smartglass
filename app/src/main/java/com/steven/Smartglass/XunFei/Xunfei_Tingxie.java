@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 
 import android.os.Handler;
 
+import static com.steven.Smartglass.ResultActivity.TingxieMSGwhat;
+
 
 public class Xunfei_Tingxie extends Thread {
 
@@ -64,9 +66,10 @@ public class Xunfei_Tingxie extends Thread {
             resultBuffer.append(mIatResults.get(key));
         }
         if (sn.equals("1")) {
-            Message msg = handler.obtainMessage();
+            handler.obtainMessage(TingxieMSGwhat, resultBuffer.toString()).sendToTarget();
+            /*Message msg = handler.obtainMessage();
             msg.obj = resultBuffer.toString();
-            handler.sendMessage(msg);
+            handler.sendMessage(msg);*/
         }else {
             mIat.stopListening();
             mIat.destroy();
@@ -93,7 +96,7 @@ public class Xunfei_Tingxie extends Thread {
 
         @Override
         public void onBeginOfSpeech() {
-            Toast.makeText(context, "请开始说话", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(context, "请开始说话", Toast.LENGTH_SHORT).show();
         }
 
         //结束录音

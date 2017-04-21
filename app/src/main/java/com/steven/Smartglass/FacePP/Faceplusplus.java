@@ -24,6 +24,8 @@ import java.util.Random;
 
 import javax.net.ssl.SSLException;
 
+import static com.steven.Smartglass.ResultActivity.FaceppMSGwhat;
+
 /**
  * Created by Administrator on 2017/4/14 0014.
  */
@@ -34,14 +36,16 @@ public class Faceplusplus extends Thread {
     private String url;
     private String TrScen;
     private String TrObj;
+    private String Trupper;
+    private String Trlower;
     private TransApi transApi = new TransApi();
-    private Handler facehandler;
+    private Handler handler;
     Gson gson = new Gson();
 
-    public Faceplusplus(File file, String url, Handler facehandler) {
+    public Faceplusplus(File file, String url, Handler handler) {
         this.file = file;
         this.url = url;
-        this.facehandler = facehandler;
+        this.handler = handler;
     }
 
     @Override
@@ -53,7 +57,13 @@ public class Faceplusplus extends Thread {
         HashMap<String, byte[]> byteMap = new HashMap<>();
         map.put("api_key", "hylmMeoibMoMKo5H-FrMit571QL2e0yQ");
         map.put("api_secret", "rWXV8-Dkf-4LTChwyhStdRjhiD-iSZNy");
-        map.put("return_attributes", "gender,age,ethnicity,smiling,glass,blur");
+        if (url == "https://api-cn.faceplusplus.com/facepp/v3/detect") {
+            map.put("return_attributes", "gender,age,ethnicity,smiling,glass,blur");
+        }
+        if (url == "https://api-cn.faceplusplus.com/humanbodypp/beta/detect") {
+            map.put("return_attributes", "gender,cloth_color");
+        }
+
         byteMap.put("image_file", buff);
 
         try {
@@ -81,12 +91,49 @@ public class Faceplusplus extends Thread {
                 if (scenesvalue == null && objectsvalue == null) {
                     finalstr = "无法识别，请重新拍摄";
                 } else if (scenesvalue != null && objectsvalue != null) {
-                    finalstr = "场景：" + TrScen + "\n" + "物体：" + TrObj;
+                    finalstr = "您所看到的场景是：" + TrScen + "\n" + "物体是：" + TrObj;
                 } else if (scenesvalue == null && objectsvalue != null) {
                     finalstr = "当前物体是：" + TrObj;
                 } else {
                     finalstr = "当前场景是：" + TrScen;
                 }
+            }
+
+
+            //人体识别处理
+            if (url == "https://api-cn.faceplusplus.com/humanbodypp/beta/detect") {
+                String gendervalue = null;
+                String uppervalue = null;
+                String lowervalue = null;
+                BodyjsonDeco bodyjsonDeco = gson.fromJson(str, BodyjsonDeco.class);
+                if ((bodyjsonDeco.getHumanbodies().size()) > 0) {
+                    gendervalue = bodyjsonDeco.getHumanbodies().get(0).getAttributes().getGender().getValue();
+                    if (gendervalue.equals("Male")) {
+                        gendervalue = "男性";
+                    } else {
+                        gendervalue = "女性";
+                    }
+                    uppervalue = bodyjsonDeco.getHumanbodies().get(0).getAttributes().getUpper_body_cloth_color();
+                    lowervalue = bodyjsonDeco.getHumanbodies().get(0).getAttributes().getLower_body_cloth_color();
+                    Trupper = transApi.getTransResult(uppervalue, "en", "zh");
+                    TransJsonDeco upperJsonDeco = gson.fromJson(Trupper, TransJsonDeco.class);
+                    Trupper = upperJsonDeco.getTrans_result().get(0).getDst();
+
+                    Trlower = transApi.getTransResult(lowervalue, "en", "zh");
+                    TransJsonDeco lowerJsonDeco = gson.fromJson(Trlower, TransJsonDeco.class);
+                    Trlower = lowerJsonDeco.getTrans_result().get(0).getDst();
+                }
+
+                if (gendervalue == null && uppervalue == null && lowervalue == null) {
+                    finalstr = "无法识别，请重新拍摄";
+                } else if (uppervalue != null && lowervalue != null) {
+                    finalstr = "性别：" + gendervalue + "\n" + "上身衣服颜色是：" + Trupper + "\n" + "下身衣服颜色是：" + Trlower;
+                } else if (uppervalue == null && lowervalue != null) {
+                    finalstr = "性别：" + gendervalue + "\n" + "下身衣服颜色是：" + Trlower;
+                } else {
+                    finalstr = "性别：" + gendervalue + "\n" + "上身衣服颜色是：" + Trupper;
+                }
+
             }
 
             //文字识别处理
@@ -164,10 +211,10 @@ public class Faceplusplus extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        Message tempMsg = facehandler.obtainMessage();
+        handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
+        /*Message tempMsg = facehandler.obtainMessage();
         tempMsg.obj = finalstr;
-        facehandler.sendMessage(tempMsg);
+        facehandler.sendMessage(tempMsg);*/
     }
 
     private final static int CONNECT_TIME_OUT = 30000;
