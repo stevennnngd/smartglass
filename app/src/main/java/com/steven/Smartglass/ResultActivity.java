@@ -2,7 +2,6 @@ package com.steven.Smartglass;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -58,18 +57,20 @@ public class ResultActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.result);
 
-        takepic = (Button) findViewById(R.id.takepic);
+        takepic = (Button) findViewById(R.id.takepic); //xml中设置了不可见
         takepic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 newCamera = (com.steven.Smartglass.newCamera) findViewById(R.id.newCamera);
                 newCamera.setVisibility(View.VISIBLE);
-                new Handler().postDelayed(new Runnable(){
+                tv.setVisibility(View.INVISIBLE);
+                turingtv.setVisibility(View.INVISIBLE);
+                new Handler().postDelayed(new Runnable() {
                     public void run() {
                         newCamera.takePicture();
                     }
-                }, 2000);
-                new Handler().postDelayed(new Runnable(){
+                }, 1000);
+                new Handler().postDelayed(new Runnable() {
                     public void run() {
                         newCamera.setVisibility(View.INVISIBLE);
                         File tempFile = new File("/sdcard/temp.jpeg");
@@ -77,8 +78,10 @@ public class ResultActivity extends Activity {
                         ImageView imageView = (ImageView) findViewById(R.id.pic);
                         Bitmap bitmap = BitmapFactory.decodeFile(path);
                         imageView.setImageBitmap(bitmap);
+                        tv.setVisibility(View.VISIBLE);
+                        turingtv.setVisibility(View.VISIBLE);
                     }
-                }, 3000);
+                }, 2000);
             }
         });
 
@@ -97,6 +100,7 @@ public class ResultActivity extends Activity {
             public void handleMessage(Message msg) {
                 System.out.println("-----------msg.what:" + msg.what);
                 String TTSmsg = msg.obj.toString();
+                System.out.println("-----------TTSmsg:" + TTSmsg);
                 switch (msg.what) {
                     case TingxieMSGwhat:
                         tv.setText(TTSmsg);
@@ -124,6 +128,7 @@ public class ResultActivity extends Activity {
         voice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Voicestop();
                 Xunfei_Tingxie Tingxiethread = new Xunfei_Tingxie(context, handler);
                 Tingxiethread.start();
             }
@@ -197,31 +202,29 @@ public class ResultActivity extends Activity {
 
     public void Voicestop() {
         SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);
-        SpeechRecognizer mIat = SpeechRecognizer.createRecognizer(context, null);
         mTts.stopSpeaking();
         mTts.destroy();
-        mIat.stopListening();
-        mIat.destroy();
     }
 
 
     public void VoiceContorl(String TTSmsg) {
 
         if (TTSmsg.equals("图像识别")) {
-            xIntent();
-            facepp("https://api-cn.faceplusplus.com/imagepp/beta/detectsceneandobject");
+            xIntent("https://api-cn.faceplusplus.com/imagepp/beta/detectsceneandobject");
         } else if (TTSmsg.equals("人脸识别")) {
-            xIntent();
-            facepp("https://api-cn.faceplusplus.com/facepp/v3/detect");
+            xIntent("https://api-cn.faceplusplus.com/facepp/v3/detect");
         } else if (TTSmsg.equals("文字识别")) {
-            xIntent();
-            facepp("https://api-cn.faceplusplus.com/imagepp/beta/recognizetext");
-        } else if (TTSmsg.equals("上传")) {
-            xIntent();
-            upload();
+            xIntent("https://api-cn.faceplusplus.com/imagepp/beta/recognizetext");
         } else if (TTSmsg.equals("人体识别")) {
-            xIntent();
-            facepp("https://api-cn.faceplusplus.com/humanbodypp/beta/detect");
+            xIntent("https://api-cn.faceplusplus.com/humanbodypp/beta/detect");
+        } else if (TTSmsg.equals("上传")) {
+            takepic.performClick();
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    upload();
+                    Toast.makeText(context, "正在上传，请稍等...", Toast.LENGTH_SHORT).show();
+                }
+            }, 3000);
         } else if (TTSmsg.equals("语音停止")) {
             Voicestop();
         } else {
@@ -231,11 +234,14 @@ public class ResultActivity extends Activity {
 
     }
 
-    public void xIntent() {
-        Intent intent = new Intent(ResultActivity.this, MainActivity.class);
-        startActivity(intent);
-        this.finish();
-        Toast.makeText(context, "正在识别，请稍等...", Toast.LENGTH_SHORT).show();
+    public void xIntent(final String url) {
+        takepic.performClick();
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                facepp(url);
+                Toast.makeText(context, "正在识别，请稍等...", Toast.LENGTH_SHORT).show();
+            }
+        }, 3000);
     }
 
 }

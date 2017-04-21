@@ -3,6 +3,7 @@ package com.steven.Smartglass;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Environment;
 import android.util.AttributeSet;
@@ -128,7 +129,7 @@ public class newCamera extends SurfaceView implements SurfaceHolder.Callback, Ca
         Camera.Size preSize = getProperSize(previewSizeList, ((float) height) / width);
         if (null != preSize) {
             Log.i(TAG, "preSize.width=" + preSize.width + "  preSize.height=" + preSize.height);
-            parameters.setPreviewSize(1280, 960);
+            parameters.setPreviewSize(1920, 1080);
         }
 
         parameters.setJpegQuality(100); // 设置照片质量
@@ -202,6 +203,9 @@ public class newCamera extends SurfaceView implements SurfaceHolder.Callback, Ca
             try {
                 // 获得图片
                 bm = BitmapFactory.decodeByteArray(data, 0, data.length);
+                Matrix matrix = new Matrix();
+                matrix.setRotate(90);
+                bm = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
                 if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                     Log.i(TAG, "Environment.getExternalStorageDirectory()=" + Environment.getExternalStorageDirectory());
                     String filePath = "/sdcard/temp.jpeg";//照片保存路径
@@ -234,9 +238,6 @@ public class newCamera extends SurfaceView implements SurfaceHolder.Callback, Ca
 
 
     public void takePicture() {
-        //设置参数,并拍照
-        //setCameraParams(mCamera, mScreenWidth, mScreenHeight);
-        // 当调用camera.takePiture方法后，camera关闭了预览，这时需要调用startPreview()来重新开启预览
         mCamera.takePicture(null, null, jpeg);
     }
 

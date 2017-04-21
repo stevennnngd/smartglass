@@ -1,7 +1,6 @@
 package com.steven.Smartglass.FacePP;
 
 import android.os.Handler;
-import android.os.Message;
 
 import com.google.gson.Gson;
 import com.steven.Smartglass.Baidutranslate.TransApi;
@@ -16,7 +15,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -51,14 +49,14 @@ public class Faceplusplus extends Thread {
     @Override
     public void run() {
 
-        String finalstr = "当前请求识别人数过多，请重试";
+        String finalstr = "网络慢脑袋不灵了,请再来一次吧";
         byte[] buff = getBytesFromFile(file);
         HashMap<String, String> map = new HashMap<>();
         HashMap<String, byte[]> byteMap = new HashMap<>();
         map.put("api_key", "hylmMeoibMoMKo5H-FrMit571QL2e0yQ");
         map.put("api_secret", "rWXV8-Dkf-4LTChwyhStdRjhiD-iSZNy");
         if (url == "https://api-cn.faceplusplus.com/facepp/v3/detect") {
-            map.put("return_attributes", "gender,age,ethnicity,smiling,glass,blur");
+            map.put("return_attributes", "gender,age,ethnicity,smiling,glass");
         }
         if (url == "https://api-cn.faceplusplus.com/humanbodypp/beta/detect") {
             map.put("return_attributes", "gender,cloth_color");
@@ -89,13 +87,13 @@ public class Faceplusplus extends Thread {
                     TrObj = transJsonDeco.getTrans_result().get(0).getDst();
                 }
                 if (scenesvalue == null && objectsvalue == null) {
-                    finalstr = "无法识别，请重新拍摄";
+                    finalstr = "网络慢脑袋不灵了,请再来一次吧";
                 } else if (scenesvalue != null && objectsvalue != null) {
                     finalstr = "您所看到的场景是：" + TrScen + "\n" + "物体是：" + TrObj;
                 } else if (scenesvalue == null && objectsvalue != null) {
-                    finalstr = "当前物体是：" + TrObj;
+                    finalstr = "您所看到的物体是：" + TrObj;
                 } else {
-                    finalstr = "当前场景是：" + TrScen;
+                    finalstr = "您所看到的场景是：" + TrScen;
                 }
             }
 
@@ -123,18 +121,17 @@ public class Faceplusplus extends Thread {
                     TransJsonDeco lowerJsonDeco = gson.fromJson(Trlower, TransJsonDeco.class);
                     Trlower = lowerJsonDeco.getTrans_result().get(0).getDst();
                 }
-
                 if (gendervalue == null && uppervalue == null && lowervalue == null) {
-                    finalstr = "无法识别，请重新拍摄";
+                    finalstr = "没有发现人呢，再来一次吧";
                 } else if (uppervalue != null && lowervalue != null) {
-                    finalstr = "性别：" + gendervalue + "\n" + "上身衣服颜色是：" + Trupper + "\n" + "下身衣服颜色是：" + Trlower;
+                    finalstr = "你眼前是一位穿着" + Trupper + "衣服，" + Trlower + "裤子的" + gendervalue;
                 } else if (uppervalue == null && lowervalue != null) {
-                    finalstr = "性别：" + gendervalue + "\n" + "下身衣服颜色是：" + Trlower;
+                    finalstr = "你眼前是一位穿着" + Trlower + "裤子的" + gendervalue;
                 } else {
-                    finalstr = "性别：" + gendervalue + "\n" + "上身衣服颜色是：" + Trupper;
+                    finalstr = "你眼前是一位穿着" + Trupper + "衣服的" + gendervalue;
                 }
-
             }
+
 
             //文字识别处理
             if (url == "https://api-cn.faceplusplus.com/imagepp/beta/recognizetext") {
@@ -161,8 +158,6 @@ public class Faceplusplus extends Thread {
                 String smiledf = null;
                 String ethnicityvalue = null;
                 String glass = null;
-                double blur;
-                String blurdf = null;
                 //DecimalFormat df = new DecimalFormat(".##");
                 try {
                     FacejsonDeco facejsonDeco = gson.fromJson(str, FacejsonDeco.class);
@@ -175,35 +170,30 @@ public class Faceplusplus extends Thread {
                         agevalue = facejsonDeco.getFaces().get(0).getAttributes().getAge().getValue();
                         ethnicityvalue = facejsonDeco.getFaces().get(0).getAttributes().getEthnicity().getValue();
                         if (ethnicityvalue.equals("Asian")) {
-                            ethnicityvalue = "亚洲人";
+                            ethnicityvalue = "亚洲";
                         } else if (ethnicityvalue.equals("White")) {
                             ethnicityvalue = "白人";
                         } else
                             ethnicityvalue = "黑人";
                         smile = facejsonDeco.getFaces().get(0).getAttributes().getSmile().getValue();
-                        if (smile < 0) {
-                            smiledf = "0" + smile;
-                        } else
-                            smiledf = "" + smile;
+                        if (smile < 20) {
+                            smiledf = "微笑着的";
+                        } else if (smile < 60) {
+                            smiledf = "浅笑着的";
+                        } else {
+                            smiledf = "大笑着的";
+                        }
                         glass = facejsonDeco.getFaces().get(0).getAttributes().getGlass().getValue();
                         if (glass.equals("None")) {
-                            glass = "无";
+                            glass = "没有佩戴眼镜";
                         } else if (glass.equals("Dark")) {
-                            glass = "黑框眼镜或墨镜";
+                            glass = "佩戴黑框眼镜或墨镜";
                         } else
-                            glass = "普通眼镜";
-                        blur = facejsonDeco.getFaces().get(0).getAttributes().getBlur().getBlurness().getValue();
-                        if (blur < 0) {
-                            blurdf = "0" + blur;
-                        } else
-                            blurdf = "" + blur;
+                            glass = "佩戴普通眼镜";
                         //blurdf = df.format(blur);
 
-                        finalstr = "性别：" + gendervalue + "\n" + "年龄：" + agevalue + "\n"
-                                + "人种：" + ethnicityvalue + "\n" + "微笑值：" + smiledf + "  (满分100)" + "\n"
-                                + "佩戴眼镜：" + glass + "\n" + "人脸模糊度：" + blurdf;
-                    } else
-                        finalstr = "无法识别，请重新拍摄";
+                        finalstr = "这是一位" + glass + "大概" + agevalue + "岁，" + smiledf + ethnicityvalue + gendervalue;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -212,9 +202,6 @@ public class Faceplusplus extends Thread {
             e.printStackTrace();
         }
         handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
-        /*Message tempMsg = facehandler.obtainMessage();
-        tempMsg.obj = finalstr;
-        facehandler.sendMessage(tempMsg);*/
     }
 
     private final static int CONNECT_TIME_OUT = 30000;
