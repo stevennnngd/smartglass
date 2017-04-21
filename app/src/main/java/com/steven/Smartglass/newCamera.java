@@ -117,7 +117,7 @@ public class newCamera extends SurfaceView implements SurfaceHolder.Callback, Ca
         // 根据选出的PictureSize重新设置SurfaceView大小
         float w = picSize.width;
         float h = picSize.height;
-        parameters.setPictureSize(1280,960);
+        parameters.setPictureSize(800,600);
         this.setLayoutParams(new FrameLayout.LayoutParams((int) (height*(h/w)), height));
 
         // 获取摄像头支持的PreviewSize列表

@@ -17,10 +17,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
-import com.iflytek.cloud.SpeechRecognizer;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechEvent;
 import com.iflytek.cloud.SpeechSynthesizer;
 import com.iflytek.cloud.SpeechUtility;
+import com.iflytek.cloud.VoiceWakeuper;
+import com.iflytek.cloud.WakeuperListener;
+import com.iflytek.cloud.WakeuperResult;
+import com.iflytek.cloud.util.ResourceUtil;
 import com.steven.Smartglass.FacePP.Faceplusplus;
 import com.steven.Smartglass.Upload.Upload;
 import com.steven.Smartglass.XunFei.Xunfei_TTS;
@@ -40,6 +46,7 @@ public class ResultActivity extends Activity {
 
     private Button voice;
     private Button takepic;
+    private Button ttt;
     private TextView tv;
     private TextView turingtv;
     private static Handler handler;
@@ -56,6 +63,7 @@ public class ResultActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.result);
+
 
         takepic = (Button) findViewById(R.id.takepic); //xml中设置了不可见
         takepic.setOnClickListener(new View.OnClickListener() {
@@ -93,7 +101,7 @@ public class ResultActivity extends Activity {
         //初始化讯飞语音
         SpeechUtility.createUtility(this, SpeechConstant.APPID + "=58f0e555");
         final SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);
-        final SpeechRecognizer mIat = SpeechRecognizer.createRecognizer(context, null);
+        final VoiceWakeuper mIvw = VoiceWakeuper.createWakeuper(context, null);
 
         handler = new Handler() {
             @Override
@@ -112,11 +120,11 @@ public class ResultActivity extends Activity {
                         break;
                     case FaceppMSGwhat:
                         tv.setText(TTSmsg);
-                        new Xunfei_TTS(context, mTts, TTSmsg);
+                        new Xunfei_TTS(context, mTts, TTSmsg, handler);
                         break;
                     case UploadMSGwhat:
                         tv.setText(TTSmsg);
-                        new Xunfei_TTS(context, mTts, TTSmsg);
+                        new Xunfei_TTS(context, mTts, TTSmsg, handler);
                         break;
 
                 }
@@ -129,13 +137,59 @@ public class ResultActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Voicestop();
+                Toast.makeText(context, "请说...", Toast.LENGTH_SHORT).show();
                 Xunfei_Tingxie Tingxiethread = new Xunfei_Tingxie(context, handler);
                 Tingxiethread.start();
             }
         });
 
 
+        //语音唤醒测试
+
+
+        //1.加载唤醒词资源，resPath为唤醒资源路径
+        StringBuffer param = new StringBuffer();
+        String resPath = ResourceUtil.generateResourcePath(context, ResourceUtil.RESOURCE_TYPE.assets, "ivw/58f0e555.jet");
+        param.append(ResourceUtil.IVW_RES_PATH + "=" + resPath);
+        param.append("," + ResourceUtil.ENGINE_START + "=" + SpeechConstant.ENG_IVW);
+        SpeechUtility.getUtility().setParameter(ResourceUtil.ENGINE_START, param.toString());
+        mIvw.setParameter(SpeechConstant.IVW_THRESHOLD, "0:" + "芝麻开门");
+        //设置当前业务类型为唤醒
+        mIvw.setParameter(SpeechConstant.IVW_SST, "wakeup");
+        //设置唤醒一直保持，直到调用stopListening，传入0则完成一次唤醒后，会话立即结束（默认0）
+        mIvw.setParameter(SpeechConstant.KEEP_ALIVE, "0");
+        //4.开始唤醒
+        mIvw.startListening(mWakeuperListener);
     }
+
+
+    //听写监听器
+    public WakeuperListener mWakeuperListener = new WakeuperListener() {
+        public void onResult(WakeuperResult result) {
+            String text = result.getResultString();
+            System.out.println("----------------语音唤醒:" + text);
+            voice.performClick();
+        }
+
+        public void onError(SpeechError error) {
+        }
+
+        public void onBeginOfSpeech() {
+        }
+
+        public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
+            if (SpeechEvent.EVENT_IVW_RESULT == eventType) {
+                //当使用唤醒+识别功能时获取识别结果
+                //arg1:是否最后一个结果，1:是，0:否。
+                RecognizerResult reslut = ((RecognizerResult) obj.get(SpeechEvent.KEY_EVENT_IVW_RESULT));
+            }
+        }
+
+        @Override
+        public void onVolumeChanged(int i) {
+
+        }
+    };
 
 
     public void facepp(String url) {
@@ -227,9 +281,11 @@ public class ResultActivity extends Activity {
             }, 3000);
         } else if (TTSmsg.equals("语音停止")) {
             Voicestop();
+            VoiceWakeuper mIvw = VoiceWakeuper.createWakeuper(context, null);
+            mIvw.startListening(mWakeuperListener);
         } else {
             SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);
-            new Xunfei_TTS(context, mTts, TTSmsg);
+            new Xunfei_TTS(context, mTts, TTSmsg, handler);
         }
 
     }

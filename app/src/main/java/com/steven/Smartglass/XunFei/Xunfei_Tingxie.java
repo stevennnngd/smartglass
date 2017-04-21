@@ -1,27 +1,25 @@
 package com.steven.Smartglass.XunFei;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Message;
-import android.util.Log;
-import android.widget.TextView;
+import android.os.Handler;
 import android.widget.Toast;
 
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechEvent;
 import com.iflytek.cloud.SpeechRecognizer;
-
+import com.iflytek.cloud.VoiceWakeuper;
+import com.iflytek.cloud.WakeuperListener;
+import com.iflytek.cloud.WakeuperResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-
-import android.os.Handler;
 
 import static com.steven.Smartglass.ResultActivity.TingxieMSGwhat;
 
@@ -101,12 +99,41 @@ public class Xunfei_Tingxie extends Thread {
 
         //结束录音
         public void onEndOfSpeech() {
-
-            //Toast.makeText(context, "说话结束", Toast.LENGTH_SHORT).show();
+            VoiceWakeuper mIvw = VoiceWakeuper.createWakeuper(context, null);
+            mIvw.startListening(mWakeuperListener);
         }
 
         //扩展用接口
         public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
+        }
+    };
+
+
+
+    //听写监听器
+    public WakeuperListener mWakeuperListener = new WakeuperListener() {
+        public void onResult(WakeuperResult result) {
+            String text = result.getResultString();
+            System.out.println("----------------语音唤醒:" + text);
+        }
+
+        public void onError(SpeechError error) {
+        }
+
+        public void onBeginOfSpeech() {
+        }
+
+        public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
+            if (SpeechEvent.EVENT_IVW_RESULT == eventType) {
+                //当使用唤醒+识别功能时获取识别结果
+                //arg1:是否最后一个结果，1:是，0:否。
+                RecognizerResult reslut = ((RecognizerResult) obj.get(SpeechEvent.KEY_EVENT_IVW_RESULT));
+            }
+        }
+
+        @Override
+        public void onVolumeChanged(int i) {
+
         }
     };
 

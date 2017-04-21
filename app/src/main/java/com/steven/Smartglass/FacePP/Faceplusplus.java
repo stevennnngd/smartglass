@@ -185,11 +185,11 @@ public class Faceplusplus extends Thread {
                         }
                         glass = facejsonDeco.getFaces().get(0).getAttributes().getGlass().getValue();
                         if (glass.equals("None")) {
-                            glass = "没有佩戴眼镜";
+                            glass = "";
                         } else if (glass.equals("Dark")) {
-                            glass = "佩戴黑框眼镜或墨镜";
+                            glass = "佩戴黑框眼镜或墨镜,";
                         } else
-                            glass = "佩戴普通眼镜";
+                            glass = "佩戴普通眼镜,";
                         //blurdf = df.format(blur);
 
                         finalstr = "这是一位" + glass + "大概" + agevalue + "岁，" + smiledf + ethnicityvalue + gendervalue;
