@@ -87,7 +87,7 @@ public class Faceplusplus extends Thread {
                     TrObj = transJsonDeco.getTrans_result().get(0).getDst();
                 }
                 if (scenesvalue == null && objectsvalue == null) {
-                    finalstr = "网络慢脑袋不灵了,请再来一次吧";
+                    finalstr = "这个超出我的认知范围了,请再来一次吧";
                 } else if (scenesvalue != null && objectsvalue != null) {
                     finalstr = "您所看到的场景是：" + TrScen + "\n" + "物体是：" + TrObj;
                 } else if (scenesvalue == null && objectsvalue != null) {

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -46,7 +47,6 @@ public class ResultActivity extends Activity {
 
     private Button voice;
     private Button takepic;
-    private Button ttt;
     private TextView tv;
     private TextView turingtv;
     private static Handler handler;
@@ -57,6 +57,7 @@ public class ResultActivity extends Activity {
     public static final int TingxieMSGwhat = 1;
     public static final int FaceppMSGwhat = 2;
     public static final int UploadMSGwhat = 3;
+    public static final int Shibie = 4;
 
 
     @Override
@@ -66,32 +67,36 @@ public class ResultActivity extends Activity {
 
 
         takepic = (Button) findViewById(R.id.takepic); //xml中设置了不可见
-        takepic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                newCamera = (com.steven.Smartglass.newCamera) findViewById(R.id.newCamera);
-                newCamera.setVisibility(View.VISIBLE);
-                tv.setVisibility(View.INVISIBLE);
-                turingtv.setVisibility(View.INVISIBLE);
-                new Handler().postDelayed(new Runnable() {
-                    public void run() {
-                        newCamera.takePicture();
-                    }
-                }, 1000);
-                new Handler().postDelayed(new Runnable() {
-                    public void run() {
-                        newCamera.setVisibility(View.INVISIBLE);
-                        File tempFile = new File("/sdcard/temp.jpeg");
-                        String path = tempFile.getAbsolutePath();
-                        ImageView imageView = (ImageView) findViewById(R.id.pic);
-                        Bitmap bitmap = BitmapFactory.decodeFile(path);
-                        imageView.setImageBitmap(bitmap);
-                        tv.setVisibility(View.VISIBLE);
-                        turingtv.setVisibility(View.VISIBLE);
-                    }
-                }, 2000);
-            }
-        });
+        takepic.setOnClickListener(new View.OnClickListener()
+
+                                   {
+                                       @Override
+                                       public void onClick(View v) {
+                                           newCamera = (com.steven.Smartglass.newCamera) findViewById(R.id.newCamera);
+                                           newCamera.setVisibility(View.VISIBLE);
+                                           tv.setVisibility(View.INVISIBLE);
+                                           turingtv.setVisibility(View.INVISIBLE);
+                                           new Handler().postDelayed(new Runnable() {
+                                               public void run() {
+                                                   newCamera.takePicture();
+                                               }
+                                           }, 1000);
+                                           new Handler().postDelayed(new Runnable() {
+                                               public void run() {
+                                                   newCamera.setVisibility(View.INVISIBLE);
+                                                   File tempFile = new File("/sdcard/temp.jpeg");
+                                                   String path = tempFile.getAbsolutePath();
+                                                   ImageView imageView = (ImageView) findViewById(R.id.pic);
+                                                   Bitmap bitmap = BitmapFactory.decodeFile(path);
+                                                   imageView.setImageBitmap(bitmap);
+                                                   tv.setVisibility(View.VISIBLE);
+                                                   turingtv.setVisibility(View.VISIBLE);
+                                               }
+                                           }, 2000);
+                                       }
+                                   }
+
+        );
 
 
         tv = (TextView) findViewById(R.id.textView);
@@ -103,45 +108,56 @@ public class ResultActivity extends Activity {
         final SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);
         final VoiceWakeuper mIvw = VoiceWakeuper.createWakeuper(context, null);
 
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                System.out.println("-----------msg.what:" + msg.what);
-                String TTSmsg = msg.obj.toString();
-                System.out.println("-----------TTSmsg:" + TTSmsg);
-                switch (msg.what) {
-                    case TingxieMSGwhat:
-                        tv.setText(TTSmsg);
-                        Turing(context, TTSmsg);
-                        break;
-                    case TuringMSGwhat:
-                        turingtv.setText(TTSmsg);
-                        VoiceContorl(TTSmsg);
-                        break;
-                    case FaceppMSGwhat:
-                        tv.setText(TTSmsg);
-                        new Xunfei_TTS(context, mTts, TTSmsg, handler);
-                        break;
-                    case UploadMSGwhat:
-                        tv.setText(TTSmsg);
-                        new Xunfei_TTS(context, mTts, TTSmsg, handler);
-                        break;
+        handler = new
 
-                }
-            }
-        };
+                Handler() {
+                    @Override
+                    public void handleMessage(Message msg) {
+                        System.out.println("-----------msg.what:" + msg.what);
+                        String TTSmsg = msg.obj.toString();
+                        System.out.println("-----------TTSmsg:" + TTSmsg);
+                        switch (msg.what) {
+                            case TingxieMSGwhat:
+                                tv.setText(TTSmsg);
+                                Turing(context, TTSmsg);
+                                break;
+                            case TuringMSGwhat:
+                                turingtv.setText(TTSmsg);
+                                VoiceContorl(TTSmsg);
+                                break;
+                            case FaceppMSGwhat:
+                                tv.setText(TTSmsg);
+                                new Xunfei_TTS(context, mTts, TTSmsg, handler, mWakeuperListener);
+                                break;
+                            case UploadMSGwhat:
+                                tv.setText(TTSmsg);
+                                new Xunfei_TTS(context, mTts, TTSmsg, handler, mWakeuperListener);
+                                break;
+                            case Shibie:
+                                voice.performClick();
+                                break;
+                        }
+                    }
+                };
 
 
         voice = (Button) findViewById(R.id.voice);
-        voice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Voicestop();
-                Toast.makeText(context, "请说...", Toast.LENGTH_SHORT).show();
-                Xunfei_Tingxie Tingxiethread = new Xunfei_Tingxie(context, handler);
-                Tingxiethread.start();
-            }
-        });
+        voice.setOnClickListener(new View.OnClickListener()
+
+                                 {
+                                     @Override
+                                     public void onClick(View v) {
+                                         new Xunfei_TTS(context, mTts, "我在,请说", handler, mWakeuperListener);
+                                         new Handler().postDelayed(new Runnable() {
+                                             public void run() {
+                                                 Xunfei_Tingxie Tingxiethread = new Xunfei_Tingxie(context, handler, mWakeuperListener);
+                                                 Tingxiethread.start();
+                                             }
+                                         }, 2000);
+                                     }
+                                 }
+
+        );
 
 
         //语音唤醒测试
@@ -160,6 +176,10 @@ public class ResultActivity extends Activity {
         mIvw.setParameter(SpeechConstant.KEEP_ALIVE, "0");
         //4.开始唤醒
         mIvw.startListening(mWakeuperListener);
+
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        System.out.println("--------------MediaPlayer" + mediaPlayer.isPlaying());
+
     }
 
 
@@ -168,6 +188,7 @@ public class ResultActivity extends Activity {
         public void onResult(WakeuperResult result) {
             String text = result.getResultString();
             System.out.println("----------------语音唤醒:" + text);
+            Toast.makeText(context, "语音唤醒开启", Toast.LENGTH_SHORT).show();
             voice.performClick();
         }
 
@@ -182,6 +203,7 @@ public class ResultActivity extends Activity {
                 //当使用唤醒+识别功能时获取识别结果
                 //arg1:是否最后一个结果，1:是，0:否。
                 RecognizerResult reslut = ((RecognizerResult) obj.get(SpeechEvent.KEY_EVENT_IVW_RESULT));
+                System.out.println("========================唤醒+识别reslut：" + reslut);
             }
         }
 
@@ -250,7 +272,6 @@ public class ResultActivity extends Activity {
         @Override
         public void onFail(int code, String error) {
             Log.d(TAG, "onFail code:" + code + "|error:" + error);
-            //handler.obtainMessage(1, "网络慢脑袋不灵了").sendToTarget();
         }
     };
 
@@ -258,6 +279,8 @@ public class ResultActivity extends Activity {
         SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);
         mTts.stopSpeaking();
         mTts.destroy();
+        VoiceWakeuper mIvw = VoiceWakeuper.createWakeuper(context, null);
+        mIvw.startListening(mWakeuperListener);
     }
 
 
@@ -281,11 +304,9 @@ public class ResultActivity extends Activity {
             }, 3000);
         } else if (TTSmsg.equals("语音停止")) {
             Voicestop();
-            VoiceWakeuper mIvw = VoiceWakeuper.createWakeuper(context, null);
-            mIvw.startListening(mWakeuperListener);
         } else {
             SpeechSynthesizer mTts = SpeechSynthesizer.createSynthesizer(context, null);
-            new Xunfei_TTS(context, mTts, TTSmsg, handler);
+            new Xunfei_TTS(context, mTts, TTSmsg, handler, mWakeuperListener);
         }
 
     }
