@@ -8,13 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/pic"
-            android:layout_width="match_parent"
-            android:layout_height="240dp"
-            android:scaleType="fitCenter"
-            android:visibility="visible" />
-
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -26,50 +19,81 @@
                 android:layout_weight="3.19"
                 android:visibility="invisible"></com.steven.Smartglass.newCamera>
         </FrameLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true">
 
             <Button
-                android:text="语音"
                 android:id="@+id/voice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"
+                android:text="语音"
+                android:visibility="invisible" />
 
-            <Button
-                android:text="拍照"
-                android:id="@+id/takepic"
-                android:visibility="invisible"
+
+            <TextView
+                android:id="@+id/comm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/voice"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:text="说出口令‘芝麻开门’开启"
+                android:textSize="20dp" />
+
+            <ImageView
+                android:id="@+id/pic"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
                 android:layout_alignParentStart="true"
-                android:layout_marginStart="12dp"
-                 />
+                android:layout_below="@+id/comm"
+                android:scaleType="fitCenter"
+                android:visibility="visible" />
 
             <TextView
-                android:text=""
                 android:id="@+id/turing"
-                android:textSize="20dp"
-                android:scrollbars="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_alignParentEnd="true"
-                android:layout_above="@+id/takepic" />
+                android:layout_height="80dp"
+                android:scrollbars="vertical"
+                android:text=""
+                android:textSize="20dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true" />
 
             <TextView
-                android:text=""
                 android:id="@+id/textView"
-                android:textSize="20dp"
-                android:scrollbars="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginBottom="106dp"
-                android:layout_above="@+id/voice"
+                android:layout_height="80dp"
+                android:scrollbars="vertical"
+                android:text=""
+                android:textSize="20dp"
+                android:layout_above="@+id/turing"
                 android:layout_alignParentStart="true" />
+
+            <Button
+                android:id="@+id/takepic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="拍照"
+                android:visibility="invisible"
+                android:layout_marginEnd="22dp"
+                android:layout_alignParentBottom="true"
+                android:layout_toStartOf="@+id/voice" />
+
+            <Button
+                android:text="增加属性"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:id="@+id/facepic"
+                android:layout_below="@+id/pic"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="16dp" />
 
         </RelativeLayout>
 

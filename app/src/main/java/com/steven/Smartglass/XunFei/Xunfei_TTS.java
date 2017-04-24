@@ -32,8 +32,8 @@ public class Xunfei_TTS {
 
         mTts = SpeechSynthesizer.createSynthesizer(context, null);
         //2.合成参数设置，详见《科大讯飞MSC API手册(Android)》SpeechSynthesizer 类
-        mTts.setParameter(SpeechConstant.VOICE_NAME, "nannan");//设置发音人
-        mTts.setParameter(SpeechConstant.SPEED, "85");//设置语速
+        mTts.setParameter(SpeechConstant.VOICE_NAME, "xiaoqiang");//设置发音人
+        mTts.setParameter(SpeechConstant.SPEED, "70");//设置语速
         mTts.setParameter(SpeechConstant.VOLUME, "100");//设置音量，范围0~100
         mTts.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD); //设置云端
 

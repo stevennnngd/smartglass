@@ -100,20 +100,20 @@ public class newCamera extends SurfaceView implements SurfaceHolder.Callback, Ca
 
 
     private void setCameraParams(Camera camera, int width, int height) {
-        Log.i(TAG,"setCameraParams  width="+width+"  height="+height);
+        //Log.i(TAG,"setCameraParams  width="+width+"  height="+height);
         Camera.Parameters parameters = mCamera.getParameters();
         // 获取摄像头支持的PictureSize列表
         List<Camera.Size> pictureSizeList = parameters.getSupportedPictureSizes();
         for (Camera.Size size : pictureSizeList) {
-            Log.i(TAG, "pictureSizeList size.width=" + size.width + "  size.height=" + size.height);
+            //Log.i(TAG, "pictureSizeList size.width=" + size.width + "  size.height=" + size.height);
         }
         /**从列表中选取合适的分辨率*/
         Camera.Size picSize = getProperSize(pictureSizeList, ((float) height / width));
         if (null == picSize) {
-            Log.i(TAG, "null == picSize");
+            //Log.i(TAG, "null == picSize");
             picSize = parameters.getPictureSize();
         }
-        Log.i(TAG, "picSize.width=" + picSize.width + "  picSize.height=" + picSize.height);
+        //Log.i(TAG, "picSize.width=" + picSize.width + "  picSize.height=" + picSize.height);
         // 根据选出的PictureSize重新设置SurfaceView大小
         float w = picSize.width;
         float h = picSize.height;
@@ -124,11 +124,11 @@ public class newCamera extends SurfaceView implements SurfaceHolder.Callback, Ca
         List<Camera.Size> previewSizeList = parameters.getSupportedPreviewSizes();
 
         for (Camera.Size size : previewSizeList) {
-            Log.i(TAG, "previewSizeList size.width=" + size.width + "  size.height=" + size.height);
+            //Log.i(TAG, "previewSizeList size.width=" + size.width + "  size.height=" + size.height);
         }
         Camera.Size preSize = getProperSize(previewSizeList, ((float) height) / width);
         if (null != preSize) {
-            Log.i(TAG, "preSize.width=" + preSize.width + "  preSize.height=" + preSize.height);
+           // Log.i(TAG, "preSize.width=" + preSize.width + "  preSize.height=" + preSize.height);
             parameters.setPreviewSize(1920, 1080);
         }
 
@@ -150,7 +150,7 @@ public class newCamera extends SurfaceView implements SurfaceHolder.Callback, Ca
      *            h对应屏幕的width<p/>
      */
     private Camera.Size getProperSize(List<Camera.Size> pictureSizeList, float screenRatio) {
-        Log.i(TAG, "screenRatio=" + screenRatio);
+        //Log.i(TAG, "screenRatio=" + screenRatio);
         Camera.Size result = null;
         for (Camera.Size size : pictureSizeList) {
             float currentRatio = ((float) size.width) / size.height;

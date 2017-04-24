@@ -24,9 +24,6 @@ import javax.net.ssl.SSLException;
 
 import static com.steven.Smartglass.ResultActivity.FaceppMSGwhat;
 
-/**
- * Created by Administrator on 2017/4/14 0014.
- */
 
 public class Faceplusplus extends Thread {
 
@@ -49,19 +46,21 @@ public class Faceplusplus extends Thread {
     @Override
     public void run() {
 
-        String finalstr = "网络慢脑袋不灵了,请再来一次吧";
+        String finalstr = null;
         byte[] buff = getBytesFromFile(file);
         HashMap<String, String> map = new HashMap<>();
         HashMap<String, byte[]> byteMap = new HashMap<>();
         map.put("api_key", "hylmMeoibMoMKo5H-FrMit571QL2e0yQ");
         map.put("api_secret", "rWXV8-Dkf-4LTChwyhStdRjhiD-iSZNy");
-        if (url == "https://api-cn.faceplusplus.com/facepp/v3/detect") {
+        if (url == "https://api-cn.faceplusplus.com/facepp/v3/detect") {  //人脸识别
             map.put("return_attributes", "gender,age,ethnicity,smiling,glass");
         }
-        if (url == "https://api-cn.faceplusplus.com/humanbodypp/beta/detect") {
+        if (url == "https://api-cn.faceplusplus.com/humanbodypp/beta/detect") { //人体识别
             map.put("return_attributes", "gender,cloth_color");
         }
-
+        if (url == "https://api-cn.faceplusplus.com/facepp/v3/search") { //人脸比对
+            map.put("outer_id", "test_outer_id");
+        }
         byteMap.put("image_file", buff);
 
         try {
@@ -69,98 +68,117 @@ public class Faceplusplus extends Thread {
             String str = new String(bacd);
             System.out.println("服务器返回的json：" + str);
 
-            //图像识别处理
-            if (url == "https://api-cn.faceplusplus.com/imagepp/beta/detectsceneandobject") {
+            if (url == "https://api-cn.faceplusplus.com/facepp/v3/search") { //人脸比对
+                SearchjsonDeco searchjsonDeco = gson.fromJson(str, SearchjsonDeco.class);
+                try {
+                    if ((searchjsonDeco.getResults().size()) > 0) {
+                        finalstr = searchjsonDeco.getResults().get(0).getUser_id();
+                    }
+                    handler.obtainMessage(FaceppMSGwhat, finalstr.toString()).sendToTarget();
+                } catch (Exception e) {
+                    handler.obtainMessage(FaceppMSGwhat, "并发数限制").sendToTarget();
+                }
+            } else if (url == "https://api-cn.faceplusplus.com/imagepp/beta/detectsceneandobject") {//图像识别处理
                 String scenesvalue = null;
                 String objectsvalue = null;
                 PicjsonDeco picjsonDeco = gson.fromJson(str, PicjsonDeco.class);
-                if ((picjsonDeco.getScenes().size()) > 0) {
-                    scenesvalue = picjsonDeco.getScenes().get(0).getValue();
-                    TrScen = transApi.getTransResult(scenesvalue, "en", "zh");
-                    TransJsonDeco transJsonDeco = gson.fromJson(TrScen, TransJsonDeco.class);
-                    TrScen = transJsonDeco.getTrans_result().get(0).getDst();
+                try {
+                    if ((picjsonDeco.getScenes().size()) > 0) {
+                        scenesvalue = picjsonDeco.getScenes().get(0).getValue();
+                        TrScen = transApi.getTransResult(scenesvalue, "en", "zh");
+                        TransJsonDeco transJsonDeco = gson.fromJson(TrScen, TransJsonDeco.class);
+                        TrScen = transJsonDeco.getTrans_result().get(0).getDst();
+                    }
+                    if ((picjsonDeco.getObjects().size()) > 0) {
+                        objectsvalue = picjsonDeco.getObjects().get(0).getValue();
+                        TrObj = transApi.getTransResult(objectsvalue, "en", "zh");
+                        TransJsonDeco transJsonDeco = gson.fromJson(TrObj, TransJsonDeco.class);
+                        TrObj = transJsonDeco.getTrans_result().get(0).getDst();
+                    }
+                } catch (Exception e) {
+                    handler.obtainMessage(FaceppMSGwhat, "这个超出我的认知范围了,请再来一次吧").sendToTarget();
                 }
-                if ((picjsonDeco.getObjects().size()) > 0) {
-                    objectsvalue = picjsonDeco.getObjects().get(0).getValue();
-                    TrObj = transApi.getTransResult(objectsvalue, "en", "zh");
-                    TransJsonDeco transJsonDeco = gson.fromJson(TrObj, TransJsonDeco.class);
-                    TrObj = transJsonDeco.getTrans_result().get(0).getDst();
-                }
-                if (scenesvalue == null && objectsvalue == null) {
-                    finalstr = "这个超出我的认知范围了,请再来一次吧";
-                } else if (scenesvalue != null && objectsvalue != null) {
+                if (scenesvalue != null && objectsvalue != null) {
                     finalstr = "您所看到的场景是：" + TrScen + "\n" + "物体是：" + TrObj;
-                } else if (scenesvalue == null && objectsvalue != null) {
-                    finalstr = "您所看到的物体是：" + TrObj;
-                } else {
-                    finalstr = "您所看到的场景是：" + TrScen;
+                    handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
                 }
-            }
-
-
-            //人体识别处理
-            if (url == "https://api-cn.faceplusplus.com/humanbodypp/beta/detect") {
+                if (scenesvalue == null && objectsvalue != null) {
+                    finalstr = "您所看到的物体是：" + TrObj;
+                    handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
+                }
+                if (scenesvalue != null && objectsvalue == null) {
+                    finalstr = "您所看到的场景是：" + TrScen;
+                    handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
+                }
+            } else if (url == "https://api-cn.faceplusplus.com/humanbodypp/beta/detect") {//人体识别处理
                 String gendervalue = null;
                 String uppervalue = null;
                 String lowervalue = null;
                 BodyjsonDeco bodyjsonDeco = gson.fromJson(str, BodyjsonDeco.class);
-                if ((bodyjsonDeco.getHumanbodies().size()) > 0) {
-                    gendervalue = bodyjsonDeco.getHumanbodies().get(0).getAttributes().getGender().getValue();
-                    if (gendervalue.equals("Male")) {
-                        gendervalue = "男性";
-                    } else {
-                        gendervalue = "女性";
+                try {
+                    if ((bodyjsonDeco.getHumanbodies().size()) > 0) {
+                        gendervalue = bodyjsonDeco.getHumanbodies().get(0).getAttributes().getGender().getValue();
+                        if (gendervalue.equals("Male")) {
+                            gendervalue = "男性";
+                        } else {
+                            gendervalue = "女性";
+                        }
+                        uppervalue = bodyjsonDeco.getHumanbodies().get(0).getAttributes().getUpper_body_cloth_color();
+                        lowervalue = bodyjsonDeco.getHumanbodies().get(0).getAttributes().getLower_body_cloth_color();
+                        Trupper = transApi.getTransResult(uppervalue, "en", "zh");
+                        TransJsonDeco upperJsonDeco = gson.fromJson(Trupper, TransJsonDeco.class);
+                        Trupper = upperJsonDeco.getTrans_result().get(0).getDst();
+
+                        Trlower = transApi.getTransResult(lowervalue, "en", "zh");
+                        TransJsonDeco lowerJsonDeco = gson.fromJson(Trlower, TransJsonDeco.class);
+                        Trlower = lowerJsonDeco.getTrans_result().get(0).getDst();
                     }
-                    uppervalue = bodyjsonDeco.getHumanbodies().get(0).getAttributes().getUpper_body_cloth_color();
-                    lowervalue = bodyjsonDeco.getHumanbodies().get(0).getAttributes().getLower_body_cloth_color();
-                    Trupper = transApi.getTransResult(uppervalue, "en", "zh");
-                    TransJsonDeco upperJsonDeco = gson.fromJson(Trupper, TransJsonDeco.class);
-                    Trupper = upperJsonDeco.getTrans_result().get(0).getDst();
-
-                    Trlower = transApi.getTransResult(lowervalue, "en", "zh");
-                    TransJsonDeco lowerJsonDeco = gson.fromJson(Trlower, TransJsonDeco.class);
-                    Trlower = lowerJsonDeco.getTrans_result().get(0).getDst();
+                } catch (Exception e) {
+                    handler.obtainMessage(FaceppMSGwhat, "没有检测到人脸,请再来一次吧").sendToTarget();
                 }
-                if (gendervalue == null && uppervalue == null && lowervalue == null) {
-                    finalstr = "没有发现人呢，再来一次吧";
-                } else if (uppervalue != null && lowervalue != null) {
+                if (uppervalue != null && lowervalue != null) {
                     finalstr = "你眼前是一位穿着" + Trupper + "衣服，" + Trlower + "裤子的" + gendervalue;
-                } else if (uppervalue == null && lowervalue != null) {
-                    finalstr = "你眼前是一位穿着" + Trlower + "裤子的" + gendervalue;
-                } else {
-                    finalstr = "你眼前是一位穿着" + Trupper + "衣服的" + gendervalue;
+                    handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
                 }
-            }
-
-
-            //文字识别处理
-            if (url == "https://api-cn.faceplusplus.com/imagepp/beta/recognizetext") {
+                if (uppervalue == null && lowervalue != null) {
+                    finalstr = "你眼前是一位穿着" + Trlower + "裤子的" + gendervalue;
+                    handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
+                }
+                if (uppervalue != null && lowervalue == null) {
+                    finalstr = "你眼前是一位穿着" + Trupper + "衣服的" + gendervalue;
+                    handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
+                }
+            } else if (url == "https://api-cn.faceplusplus.com/imagepp/beta/recognizetext") {//文字识别处理
 
                 String text = "";
                 String type = "";
                 TextjsonDeco textjson = gson.fromJson(str, TextjsonDeco.class);
-
-                for (int i = 0; i < textjson.getResult().size(); i++) {
-                    type = textjson.getResult().get(i).getType();
-                    System.out.println("type:" + type);
-                    if (type.equals("textline")) {
-                        text = text + textjson.getResult().get(i).getValue() + "\n";
+                try {
+                    if ((textjson.getResult().size()) > 0) {
+                        for (int i = 0; i < textjson.getResult().size(); i++) {
+                            type = textjson.getResult().get(i).getType();
+                            System.out.println("type:" + type);
+                            if (type.equals("textline")) {
+                                finalstr = text + textjson.getResult().get(i).getValue() + "\n";
+                            }
+                        }
+                        finalstr = text;
+                        handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
                     }
+                } catch (Exception e) {
+                    handler.obtainMessage(FaceppMSGwhat, "没有检测到可识别的文字,请再来一次吧").sendToTarget();
                 }
-                finalstr = text;
-            }
-
-            //人脸识别处理
-            if (url == "https://api-cn.faceplusplus.com/facepp/v3/detect") {
+            } else if (url == "https://api-cn.faceplusplus.com/facepp/v3/detect") {//人脸识别处理
                 String gendervalue = null;
+                String face_tokens = null;
                 int agevalue;
                 double smile;
                 String smiledf = null;
                 String ethnicityvalue = null;
                 String glass = null;
                 //DecimalFormat df = new DecimalFormat(".##");
+                FacejsonDeco facejsonDeco = gson.fromJson(str, FacejsonDeco.class);
                 try {
-                    FacejsonDeco facejsonDeco = gson.fromJson(str, FacejsonDeco.class);
                     if (facejsonDeco.getFaces().size() > 0) {
                         gendervalue = facejsonDeco.getFaces().get(0).getAttributes().getGender().getValue();
                         if (gendervalue.equals("Male")) {
@@ -191,25 +209,25 @@ public class Faceplusplus extends Thread {
                         } else
                             glass = "佩戴普通眼镜,";
                         //blurdf = df.format(blur);
-
                         finalstr = "这是一位" + glass + "大概" + agevalue + "岁，" + smiledf + ethnicityvalue + gendervalue;
+                        handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    handler.obtainMessage(FaceppMSGwhat, "没有检测到可识别的人脸,请再来一次吧").sendToTarget();
                 }
+            } else {
+                handler.obtainMessage(FaceppMSGwhat, "传入的URL错误").sendToTarget();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        handler.obtainMessage(FaceppMSGwhat, finalstr).sendToTarget();
     }
 
     private final static int CONNECT_TIME_OUT = 30000;
     private final static int READ_OUT_TIME = 50000;
     private static String boundaryString = getBoundary();
 
-    protected static byte[] post(String
-                                         url, HashMap<String, String> map, HashMap<String, byte[]> fileMap) throws Exception {
+    protected static byte[] post(String url, HashMap<String, String> map, HashMap<String, byte[]> fileMap) throws Exception {
         HttpURLConnection conne;
         URL url1 = new URL(url);
         conne = (HttpURLConnection) url1.openConnection();

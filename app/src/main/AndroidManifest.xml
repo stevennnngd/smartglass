@@ -32,8 +32,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".Fast_Fourier_Trans_Demo" />
+        <activity android:name=".Facesetting" />
     </application>
 
 </manifest>

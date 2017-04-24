@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/picview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_alignParentEnd="true"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/picview"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="41dp"
+        android:text="名字:"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/numb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/name"
+        android:layout_below="@+id/name"
+        android:layout_marginTop="20dp"
+        android:text="学号:"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/major"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/numb"
+        android:layout_below="@+id/numb"
+        android:layout_marginTop="18dp"
+        android:text="专业:"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/grade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/major"
+        android:layout_below="@+id/major"
+        android:layout_marginTop="23dp"
+        android:text="年级:"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/hobby"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/grade"
+        android:layout_below="@+id/grade"
+        android:layout_marginTop="18dp"
+        android:text="爱好:"
+        android:textSize="20dp" />
+
+    <EditText
+        android:id="@+id/nameEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/name"
+        android:layout_alignBottom="@+id/name"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@+id/name"
+        android:ems="10"
+        android:hint="Name"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/numbEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/nameEdit"
+        android:layout_below="@+id/nameEdit"
+        android:ems="10"
+        android:hint="Numb"
+        android:inputType="textPersonName"
+        android:numeric="integer" />
+
+    <EditText
+        android:id="@+id/majorEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/numbEdit"
+        android:layout_below="@+id/numbEdit"
+        android:ems="10"
+        android:hint="Major"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/gradeEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/majorEdit"
+        android:layout_below="@+id/majorEdit"
+        android:ems="10"
+        android:hint="Grade"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/hobbyEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/gradeEdit"
+        android:layout_below="@+id/gradeEdit"
+        android:ems="10"
+        android:hint="Hobby"
+        android:inputType="textPersonName" />
+
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/hobbyEdit"
+        android:text="返回" />
+
+    <Button
+        android:id="@+id/up_faceset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/hobbyEdit"
+        android:layout_toStartOf="@+id/back"
+        android:text="上传" />
+
+    <Button
+        android:id="@+id/add_faceset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/up_faceset"
+        android:layout_alignBottom="@+id/up_faceset"
+        android:layout_toStartOf="@+id/up_faceset"
+        android:text="添加属性" />
+
+    <Button
+        android:id="@+id/gainkey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/add_faceset"
+        android:layout_toStartOf="@+id/add_faceset"
+        android:text="获取key" />
+
+    <Button
+        android:text="清除"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/clear"
+        android:layout_alignBaseline="@+id/hobby"
+        android:layout_alignBottom="@+id/hobby"
+        android:layout_alignParentEnd="true" />
+
+
+</RelativeLayout>

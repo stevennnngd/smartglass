@@ -2,9 +2,9 @@ package com.steven.Smartglass;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -47,6 +47,8 @@ public class ResultActivity extends Activity {
 
     private Button voice;
     private Button takepic;
+    private Button facepic;
+    private ImageView imageView;
     private TextView tv;
     private TextView turingtv;
     private static Handler handler;
@@ -59,17 +61,42 @@ public class ResultActivity extends Activity {
     public static final int UploadMSGwhat = 3;
     public static final int Shibie = 4;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.result);
+        imageView = (ImageView) findViewById(R.id.pic);
 
+        facepic = (Button) findViewById(R.id.facepic);
+        facepic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newCamera = (com.steven.Smartglass.newCamera) findViewById(R.id.newCamera);
+                newCamera.setVisibility(View.VISIBLE);
+                imageView.setVisibility(View.INVISIBLE);
+                tv.setVisibility(View.INVISIBLE);
+                turingtv.setVisibility(View.INVISIBLE);
+                new Handler().postDelayed(new Runnable() {
+                    public void run() {
+                        newCamera.takePicture();
+                    }
+                }, 1000);
+                new Handler().postDelayed(new Runnable() {
+                    public void run() {
+                        newCamera.setVisibility(View.INVISIBLE);
+                        Intent intent = new Intent(ResultActivity.this, Facesetting.class);
+                        startActivity(intent);
+                        ResultActivity.this.finish();
+                        facepic.setVisibility(View.VISIBLE);
+                        tv.setVisibility(View.VISIBLE);
+                        turingtv.setVisibility(View.VISIBLE);
+                    }
+                }, 2000);
+            }
+        });
 
         takepic = (Button) findViewById(R.id.takepic); //xml中设置了不可见
-        takepic.setOnClickListener(new View.OnClickListener()
-
-                                   {
+        takepic.setOnClickListener(new View.OnClickListener() {
                                        @Override
                                        public void onClick(View v) {
                                            newCamera = (com.steven.Smartglass.newCamera) findViewById(R.id.newCamera);
@@ -86,9 +113,9 @@ public class ResultActivity extends Activity {
                                                    newCamera.setVisibility(View.INVISIBLE);
                                                    File tempFile = new File("/sdcard/temp.jpeg");
                                                    String path = tempFile.getAbsolutePath();
-                                                   ImageView imageView = (ImageView) findViewById(R.id.pic);
                                                    Bitmap bitmap = BitmapFactory.decodeFile(path);
                                                    imageView.setImageBitmap(bitmap);
+                                                   facepic.setVisibility(View.VISIBLE);
                                                    tv.setVisibility(View.VISIBLE);
                                                    turingtv.setVisibility(View.VISIBLE);
                                                }
@@ -153,7 +180,7 @@ public class ResultActivity extends Activity {
                                                  Xunfei_Tingxie Tingxiethread = new Xunfei_Tingxie(context, handler, mWakeuperListener);
                                                  Tingxiethread.start();
                                              }
-                                         }, 2000);
+                                         }, 2200);
                                      }
                                  }
 
@@ -176,10 +203,6 @@ public class ResultActivity extends Activity {
         mIvw.setParameter(SpeechConstant.KEEP_ALIVE, "0");
         //4.开始唤醒
         mIvw.startListening(mWakeuperListener);
-
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        System.out.println("--------------MediaPlayer" + mediaPlayer.isPlaying());
-
     }
 
 
@@ -294,6 +317,8 @@ public class ResultActivity extends Activity {
             xIntent("https://api-cn.faceplusplus.com/imagepp/beta/recognizetext");
         } else if (TTSmsg.equals("人体识别")) {
             xIntent("https://api-cn.faceplusplus.com/humanbodypp/beta/detect");
+        } else if (TTSmsg.equals("人脸对比")) {
+            xIntent("https://api-cn.faceplusplus.com/facepp/v3/search");
         } else if (TTSmsg.equals("上传")) {
             takepic.performClick();
             new Handler().postDelayed(new Runnable() {
