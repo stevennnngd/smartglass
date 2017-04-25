@@ -59,7 +59,7 @@ public class ResultActivity extends Activity {
     public static final int TingxieMSGwhat = 1;
     public static final int FaceppMSGwhat = 2;
     public static final int UploadMSGwhat = 3;
-    public static final int Shibie = 4;
+    public static final int ShibieMSGwhat = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,8 +160,9 @@ public class ResultActivity extends Activity {
                                 tv.setText(TTSmsg);
                                 new Xunfei_TTS(context, mTts, TTSmsg, handler, mWakeuperListener);
                                 break;
-                            case Shibie:
-                                voice.performClick();
+                            case ShibieMSGwhat:
+                                Turing(context, TTSmsg);
+                                Toast.makeText(context, TTSmsg, Toast.LENGTH_SHORT).show();
                                 break;
                         }
                     }
@@ -186,10 +187,7 @@ public class ResultActivity extends Activity {
 
         );
 
-
         //语音唤醒测试
-
-
         //1.加载唤醒词资源，resPath为唤醒资源路径
         StringBuffer param = new StringBuffer();
         String resPath = ResourceUtil.generateResourcePath(context, ResourceUtil.RESOURCE_TYPE.assets, "ivw/58f0e555.jet");

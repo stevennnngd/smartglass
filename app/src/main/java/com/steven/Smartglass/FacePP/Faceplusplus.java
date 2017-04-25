@@ -23,6 +23,7 @@ import java.util.Random;
 import javax.net.ssl.SSLException;
 
 import static com.steven.Smartglass.ResultActivity.FaceppMSGwhat;
+import static com.steven.Smartglass.ResultActivity.ShibieMSGwhat;
 
 
 public class Faceplusplus extends Thread {
@@ -74,9 +75,9 @@ public class Faceplusplus extends Thread {
                     if ((searchjsonDeco.getResults().size()) > 0) {
                         finalstr = searchjsonDeco.getResults().get(0).getUser_id();
                     }
-                    handler.obtainMessage(FaceppMSGwhat, finalstr.toString()).sendToTarget();
+                    handler.obtainMessage(ShibieMSGwhat, finalstr.toString()).sendToTarget();
                 } catch (Exception e) {
-                    handler.obtainMessage(FaceppMSGwhat, "并发数限制").sendToTarget();
+                    handler.obtainMessage(ShibieMSGwhat, "并发数限制").sendToTarget();
                 }
             } else if (url == "https://api-cn.faceplusplus.com/imagepp/beta/detectsceneandobject") {//图像识别处理
                 String scenesvalue = null;

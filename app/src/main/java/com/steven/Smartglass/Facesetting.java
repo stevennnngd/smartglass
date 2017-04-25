@@ -33,11 +33,7 @@ public class Facesetting extends Activity {
     private Button clear;
     private Button back;
     private ImageView picview;
-    private EditText nameEdit;
-    private EditText numbEdit;
-    private EditText majorEdit;
-    private EditText gradeEdit;
-    private EditText hobbyEdit;
+    private EditText sthEdit;
     private String face_tokens;
     private String user_id;
     private String nd = "\n";
@@ -53,11 +49,7 @@ public class Facesetting extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.facesetting);
 
-        nameEdit = (EditText) findViewById(R.id.nameEdit);
-        numbEdit = (EditText) findViewById(R.id.numbEdit);
-        majorEdit = (EditText) findViewById(R.id.majorEdit);
-        gradeEdit = (EditText) findViewById(R.id.gradeEdit);
-        hobbyEdit = (EditText) findViewById(R.id.hobbyEdit);
+        sthEdit = (EditText) findViewById(R.id.sthEdit);
 
         File tempFile = new File("/sdcard/temp.jpeg");
         String path = tempFile.getAbsolutePath();
@@ -116,9 +108,7 @@ public class Facesetting extends Activity {
             @Override
             public void onClick(View v) {
                 String url = "https://api-cn.faceplusplus.com/facepp/v3/face/setuserid";
-                user_id = "name:" + nameEdit.getText() + nd + "number:" + numbEdit.getText() + nd +
-                        "major:" + majorEdit.getText() + nd + "grade:" + gradeEdit.getText() + nd +
-                        "hobby:" + hobbyEdit.getText();
+                user_id = sthEdit.getText().toString();
                 try {
                     user_id = URLDecoder.decode(user_id, "UTF-8");
                 } catch (UnsupportedEncodingException e) {
